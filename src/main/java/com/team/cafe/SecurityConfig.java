@@ -1,7 +1,7 @@
 package com.team.cafe;
 
 import com.team.cafe.user.sjhy.CustomAuthenticationFailureHandler;
-//import com.team.cafe.user.sjhy.CustomAuthenticationProvider;
+import com.team.cafe.user.sjhy.CustomAuthenticationProvider;
 import com.team.cafe.user.sjhy.CustomLoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +22,18 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-//
-//    private final CustomAuthenticationProvider customAuthenticationProvider;
-//
-//    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {
-//        this.customAuthenticationProvider = customAuthenticationProvider;
-//    }
+
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+
+    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {
+        this.customAuthenticationProvider = customAuthenticationProvider;
+    }
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 // 1) 정적 리소스 & 공개 경로 명시 허용
-//                .authenticationProvider(customAuthenticationProvider)
+                .authenticationProvider(customAuthenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",                 // 홈
