@@ -42,7 +42,10 @@ public class UserSecurityService implements UserDetailsService {
             role = UserRole.USER.name();
         }
 
-        String normalizedRole = "ROLE_" + role.toUpperCase();
+        String normalizedRole = role.toUpperCase();
+        if (!normalizedRole.startsWith("ROLE_")) {
+            normalizedRole = "ROLE_" + normalizedRole;
+        }
 
         // UserRole enum에 정의된 값만 허용, 나머지는 기본 USER 권한 부여
         if (!normalizedRole.equals(UserRole.BUSINESS.getValue()) &&
