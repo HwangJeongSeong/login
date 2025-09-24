@@ -23,15 +23,10 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomAuthenticationProvider customAuthenticationProvider;
-
-    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {
-        this.customAuthenticationProvider = customAuthenticationProvider;
-    }
-
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
-                                    AuthenticationManager authenticationManager) throws Exception {
+                                    AuthenticationManager authenticationManager,
+                                    CustomAuthenticationProvider customAuthenticationProvider) throws Exception {
         http
                 // 1) 정적 리소스 & 공개 경로 명시 허용
                 .authenticationProvider(customAuthenticationProvider)
