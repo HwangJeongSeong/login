@@ -18,11 +18,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     public CustomAuthenticationProvider(UserDetailsService userDetailsService,
-                                        PasswordEncoder passwordEncoder) {
+                                        PasswordEncoder passwordEncoder,
+                                        UserRepository userRepository) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -37,6 +40,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         // 사용자 조회
         UserDetails user = userDetailsService.loadUserByUsername(username);
+        SiteUser siteUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
         // 비밀번호 체크
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
@@ -44,15 +49,27 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
 
         // role vs loginType 체크
-        boolean isBusiness = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_BUSINESS".equalsIgnoreCase(a.getAuthority()));
-        boolean isUser = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_USER".equalsIgnoreCase(a.getAuthority()));
+        String roleValue = siteUser.getRole();
+        if (roleValue == null || roleValue.isBlank()) {
+            roleValue = UserRole.USER.name();
+        }
 
-        if ("USER".equals(loginType) && isBusiness) {
+        String normalizedRole = roleValue.toUpperCase();
+        if (!normalizedRole.startsWith("ROLE_")) {
+            normalizedRole = "ROLE_" + normalizedRole;
+        }
+
+        boolean isBusiness = normalizedRole.equalsIgnoreCase(UserRole.BUSINESS.getValue());
+        boolean isUser = normalizedRole.equalsIgnoreCase(UserRole.USER.getValue());
+
+        String normalizedLoginType = (loginType == null || loginType.isBlank())
+                ? UserRole.USER.name()
+                : loginType.trim().toUpperCase();
+
+        if (UserRole.USER.name().equals(normalizedLoginType) && isBusiness) {
             throw new BadCredentialsException("사업자 계정은 일반 로그인 불가");
         }
-        if ("BUSINESS".equals(loginType) && isUser) {
+        if (UserRole.BUSINESS.name().equals(normalizedLoginType) && isUser) {
             throw new BadCredentialsException("일반 계정은 사업자 로그인 불가");
         }
 
