@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const mismatchParam = urlParams.get('mismatch');
     if (mismatchParam === 'business') {
-        showRedirectModal('사업자 계정으로 확인되었습니다. 사업자 로그인 페이지로 이동하시겠습니까?', '/business/login');
+        showRedirectModal('사업자 회원입니다. 사업자 로그인 페이지로 이동하시겠습니까?', '/business/login');
     } else if (mismatchParam === 'user') {
         showRedirectModal('일반 회원 계정입니다. 일반 로그인 페이지로 이동하시겠습니까?', '/user/login');
     }
