@@ -33,11 +33,19 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String rawPassword = authentication.getCredentials().toString();
 
-        // loginType 꺼내오기
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
-        String loginType = request != null ? request.getParameter("loginType") : null;
-        String requestPath = request != null ? request.getServletPath() : null;
+        String loginType = null;
+        String requestPath = null;
+
+        Object details = authentication.getDetails();
+        if (details instanceof MultiEndpointWebAuthenticationDetails multiDetails) {
+            loginType = multiDetails.getLoginType();
+            requestPath = multiDetails.getRequestPath();
+        } else {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
+            loginType = request != null ? request.getParameter("loginType") : null;
+            requestPath = request != null ? request.getServletPath() : null;
+        }
 
         // 사용자 조회
         UserDetails user = userDetailsService.loadUserByUsername(username);

@@ -2,10 +2,10 @@ package com.team.cafe.user.sjhy;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * 두 종류의 로그인 엔드포인트(/user/login, /business/login)를 모두 처리하기 위한 커스텀 필터.
@@ -29,6 +29,12 @@ public class MultiEndpointAuthenticationFilter extends UsernamePasswordAuthentic
     @Override
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         return MULTI_ENDPOINT_MATCHER.matches(request);
+    }
+
+    @Override
+    protected void setDetails(HttpServletRequest request,
+                              org.springframework.security.authentication.UsernamePasswordAuthenticationToken authRequest) {
+        authRequest.setDetails(new MultiEndpointWebAuthenticationDetails(request));
     }
 }
 
