@@ -37,8 +37,10 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // 인증된 사용자의 실제 역할(roles) 가져오기
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        boolean isUser = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
-        boolean isBusiness = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_BUSINESS"));
+        boolean isUser = authorities.stream()
+                .anyMatch(a -> "ROLE_USER".equalsIgnoreCase(a.getAuthority()));
+        boolean isBusiness = authorities.stream()
+                .anyMatch(a -> "ROLE_BUSINESS".equalsIgnoreCase(a.getAuthority()));
 
         // 1. 일반 로그인 페이지에서 사업자 계정으로 로그인 (loginType=null, 실제 롤: ROLE_BUSINESS)
         if (isBusiness && !isBusinessLoginRequest) {

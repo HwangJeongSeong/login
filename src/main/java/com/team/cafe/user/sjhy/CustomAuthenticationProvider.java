@@ -45,9 +45,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         // role vs loginType 체크
         boolean isBusiness = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_BUSINESS"));
+                .anyMatch(a -> "ROLE_BUSINESS".equalsIgnoreCase(a.getAuthority()));
         boolean isUser = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+                .anyMatch(a -> "ROLE_USER".equalsIgnoreCase(a.getAuthority()));
 
         if ("USER".equals(loginType) && isBusiness) {
             throw new BadCredentialsException("사업자 계정은 일반 로그인 불가");
