@@ -30,10 +30,12 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
         String loginType = request.getParameter("loginType");
+        String requestPath = request.getServletPath();
 
         // loginType 파라미터가 전달되지 않은 경우 기본적으로 일반 로그인 시도로 간주
         // (일반 로그인 페이지에서 loginType 히든 필드가 누락되거나 조작된 상황 대비)
-        boolean isBusinessLoginRequest = "BUSINESS".equals(loginType);
+        boolean isBusinessLoginRequest = "BUSINESS".equals(loginType)
+                || (loginType == null && requestPath != null && requestPath.startsWith("/business"));
 
         // 인증된 사용자의 실제 역할(roles) 가져오기
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

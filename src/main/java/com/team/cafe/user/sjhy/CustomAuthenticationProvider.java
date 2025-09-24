@@ -34,9 +34,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String rawPassword = authentication.getCredentials().toString();
 
         // loginType 꺼내오기
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String loginType = request.getParameter("loginType");
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
+        String loginType = request != null ? request.getParameter("loginType") : null;
+        String requestPath = request != null ? request.getServletPath() : null;
 
         // 사용자 조회
         UserDetails user = userDetailsService.loadUserByUsername(username);
@@ -62,9 +63,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         boolean isBusiness = normalizedRole.equalsIgnoreCase(UserRole.BUSINESS.getValue());
         boolean isUser = normalizedRole.equalsIgnoreCase(UserRole.USER.getValue());
 
-        String normalizedLoginType = (loginType == null || loginType.isBlank())
-                ? UserRole.USER.name()
-                : loginType.trim().toUpperCase();
+        String normalizedLoginType;
+        if (loginType == null || loginType.isBlank()) {
+            if (requestPath != null && requestPath.startsWith("/business")) {
+                normalizedLoginType = UserRole.BUSINESS.name();
+            } else {
+                normalizedLoginType = UserRole.USER.name();
+            }
+        } else {
+            normalizedLoginType = loginType.trim().toUpperCase();
+        }
 
         if (UserRole.USER.name().equals(normalizedLoginType) && isBusiness) {
             throw new BadCredentialsException("사업자 계정은 일반 로그인 불가");
