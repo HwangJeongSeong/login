@@ -55,6 +55,37 @@ function getParameterByName(name, url = window.location.href) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
+function showRedirectModal(message, confirmUrl) {
+    const modalElement = document.getElementById('alertModal');
+    const messageElement = document.getElementById('alertMessage');
+    const confirmButton = document.getElementById('alertConfirmButton');
+
+    if (!modalElement || !messageElement || !confirmButton || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        if (window.confirm(message)) {
+            window.location.href = confirmUrl;
+        }
+        return;
+    }
+
+    messageElement.textContent = message;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    const handleConfirm = () => {
+        window.location.href = confirmUrl;
+    };
+
+    const handleHidden = () => {
+        confirmButton.removeEventListener('click', handleConfirm);
+        modalElement.removeEventListener('hidden.bs.modal', handleHidden);
+    };
+
+    confirmButton.addEventListener('click', handleConfirm, { once: true });
+    modalElement.addEventListener('hidden.bs.modal', handleHidden);
+
+    modal.show();
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // URL에 'error' 파라미터가 있는지 확인
 //    const urlParams = new URLSearchParams(window.location.search);
@@ -92,5 +123,12 @@ document.addEventListener("DOMContentLoaded", function() {
         errorElement.style.display = 'block';
     } else if (errorElement) {
         errorElement.style.display = 'none';
+    }
+
+    const mismatchParam = urlParams.get('mismatch');
+    if (mismatchParam === 'business') {
+        showRedirectModal('사업자 계정으로 확인되었습니다. 사업자 로그인 페이지로 이동하시겠습니까?', '/business/login');
+    } else if (mismatchParam === 'user') {
+        showRedirectModal('일반 회원 계정입니다. 일반 로그인 페이지로 이동하시겠습니까?', '/user/login');
     }
 });
